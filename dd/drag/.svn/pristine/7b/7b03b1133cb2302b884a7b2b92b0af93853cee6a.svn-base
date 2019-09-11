@@ -1,0 +1,63 @@
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td,hr,button,article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{margin:0;padding:0}
+input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill,
+input:disabled, textarea:disabled, select:disabled,
+input, textarea, select {background: none !important; }
+body,button,input,select,textarea{font:14px/1.5 sans-serif,arial,Tahoma,Verdana,STHeiTi,simsun; color: #333; outline:none; border: none; }
+ul,li,ol { list-style: none; }
+i, cite, em, var, address, dfn { font-style: normal; }
+img { border: 0 none; }
+input, select { vertical-align: middle; }
+table { border-collapse: collapse; }
+s, em, i { font-style: normal; text-decoration: none; }
+a { outline: none; text-decoration: none; }
+body,html {width:100%;height:100%;min-width:1200px;overflow:hidden}
+
+
+.drag-container {width:100%;height:100%;overflow:auto;overflow-y:hidden;min-width:1200px;position:relative}
+.drag-btn-sub {position:absolute;right:20px;top:10px;color:#fff;background-color:#2d8cf0;border-color:#2d8cf0;
+    padding:10px 25px;border-radius:5px;cursor:pointer;font-size:14px;z-index:1000}
+.drag-page {height:60px;width:100%;min-width:1200px;border-bottom:1px solid #ddd;position:fixed;top:0;
+    text-align:center;box-sizing:border-box}
+.drag-page ul {width:calc(100% - 260px - 180px);margin-left:180px;text-align:center;height:100%;
+    vertical-align:middle;line-height:52px}
+.drag-page a {padding:6px;font-size:13px;border:1px solid #ccc;cursor:pointer;color:#585858;display:inline-block;
+    vertical-align:middle;line-height:12px;text-decoration:none;margin:5px;box-sizing:border-box;border-radius:3px}
+.drag-page .lmw-current {background:#2d8cf0;color:white;border:1px solid #2d8cf0;box-sizing:border-box}
+
+.drag-contentbox { position: absolute; height: calc(100% - 60px);margin-top: 60px;width: 100%;overflow: hidden; }
+.drag-left-side,
+.drag-right-side {width:180px;height:100%;overflow-y:auto;float:left;padding:25px 0;border-right:1px solid #ddd;
+    box-sizing:border-box}
+.drag-left-side::-webkit-scrollbar {position:absolute;right:-10%;width:4px;background-color:#fff}
+.drag-left-side::-webkit-scrollbar-track {background:#fff}
+.drag-left-side::-webkit-scrollbar-thumb {border-radius:18px;background:#d7d8df}
+.drag-left-side::-webkit-scrollbar-thumb:window-inactive {background:#fff}
+.drag-right-side {width:260px;float:right;border-left:1px solid #ddd;box-sizing:border-box}
+
+.box {width:130px;height:130px;cursor:move;text-align:center;margin:0 auto 25px}
+.box>div {width:100px;height:100px;margin:0 auto 10px;position:relative}
+.box img {max-width:100px;max-height:100px;position:absolute;top:50%;left:50%;-webkit-transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%)}
+
+.drag-center-box {width:calc(100% - 260px - 180px);height:100%;left:120px;overflow-y:auto;background:#eee;float:left;
+    box-sizing:border-box}
+.drag-pdful > li {width:592px;height:842px;margin:20px auto 0;position:relative;background:#fff}
+.drag-pdful {width:592px;margin:0 auto;position:relative}
+
+.dragStatus,
+.dragBox {display:block;position:absolute;width:130px;height:130px;border:1px dashed #e60012;cursor:move;z-index:999;
+    text-align:center;line-height:130px}
+.dragStatus img,
+.dragBox img {display:inline-block;max-width:120px;max-height:120px}
+.dragStatus:hover {background:rgba(230,10,0,0.3)}
+.dragStatus:hover .close {display:block}
+.dragStatus .close {background:url("./images/close.png") no-repeat center;position:absolute;top:-13px;right:-12px;width:26px;
+    height:26px;cursor:pointer}
+
+.drag-goto {position:absolute;z-index:300;right:280px;bottom:30px;height:120px;width:50px}
+.drag-goto .goto-bottom,
+.drag-goto .goto-top {background-position:50%;background-size:contain;width:50px;height:50px;
+    position:absolute;cursor:pointer}
+.drag-goto .goto-top {top:0;background:url("./images/row1.png") no-repeat center}
+.drag-goto .goto-bottom {bottom:0;background:url("./images/row2.png") no-repeat center}
+.el-message--error {position:fixed;right:200px;top:30px;color:red}

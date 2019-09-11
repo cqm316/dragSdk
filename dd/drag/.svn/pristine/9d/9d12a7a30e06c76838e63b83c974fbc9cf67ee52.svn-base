@@ -1,0 +1,368 @@
+(function(window,document){
+    var PDFPAGEW = 595;
+    var PDFPAFEH = 842
+    var PDFMARGIN = 20;
+    var PDFPAGEHM = PDFPAFEH + PDFMARGIN;
+
+    function Drag(options){
+        this._options = {
+            cls: document.querySelectorAll(options.cls),
+            pdfObjId: options.pdfObjId,
+            subFunc: options.click
+           // total: options.total,
+           // containerId: options.containerId,
+           // centerUId: options.centerUId
+        };
+
+        this.contentboxT = document.getElementById('dragContent').offsetTop;
+        this.drag = this._options.cls[0];
+        this.$centerUId = document.getElementById('centerUl');
+        this.$pdfObjId = document.getElementById(this._options.pdfObjId); // 滚动的PDF
+        this.curPage = 1;
+        this.id = 0
+        this.init();
+    }
+
+    Drag.prototype.init = function(){
+        var self = this;
+        var cls = this._options.cls;
+        self.fnGetDrag(cls);
+        this.fnShowPage()
+        self.$centerUId.addEventListener('scroll',throttle(function () {
+            self.curPage = parseInt(this.scrollTop/PDFPAGEHM)+1
+        }, 800));
+
+        document.getElementsByClassName('goto-top')[0].onclick = function (e) {
+            self.$centerUId.scrollTop = 0;
+        }
+
+        document.getElementsByClassName('goto-bottom')[0].onclick = function (e) {
+            self.$centerUId.scrollTop = document.getElementById('pdfUl').offsetHeight
+        }
+
+        //立即签署的坐标
+        document.getElementById('btn').onclick = function (e) {
+            var dragStatus = document.getElementsByClassName('dragStatus');
+            self.fnGetResults(dragStatus)
+        };
+    };
+
+    Drag.prototype.fnShowPage = function(){
+        var self = this
+        var conf = {
+            total: document.getElementById('pdfUl').children.length,
+            containerId: 'ul',
+            centerUId: 'centerUl',
+            // total: this._options.total,
+            // containerId: this._options.containerId,
+            // centerUId: this._options.centerUId,
+            click: function(e){
+                self.curPage = e
+                var total = self.$pdfObjId.children[e-1].offsetTop;
+                self.$centerUId.scrollTop = total;
+            }
+        };
+        new pageFunc(conf);
+    }
+
+    Drag.prototype.fnGetDrag = function(cls){
+        var self = this
+        for(var i = 0; i < cls.length; i++) {
+            (function(i) {
+                self.fnDrag(cls[i]);
+            })(i)
+        }
+    }
+
+    Drag.prototype.fnDrag = function(dragB){
+        var self = this;
+        dragB.onmousedown = function(e){
+            e = e || event;
+            self.obj = dragB;
+            self.drag = dragB;
+            self.fnDown(e);
+            document.onmousemove = function(e){
+                e = e || event;
+                self.fnMove(e);
+            }
+            document.onmouseup = function(e){
+                self.fnUp(e);
+            }
+            return false;
+        }
+    }
+
+    Drag.prototype.fnDown = function(e){
+        this.pdfT = this.$pdfObjId.offsetTop + this.contentboxT;
+        this.pdfL = this.$pdfObjId.offsetLeft;
+        this.pdfB = this.pdfT + this.$centerUId.offsetHeight
+        this.pdfR = this.pdfL + this.$pdfObjId.offsetWidth;
+        this.maxTop = this.$pdfObjId.offsetHeight - this.drag.offsetHeight;
+        this.disX = e.clientX - this.drag.offsetLeft;
+        this.disY = e.clientY - this.drag.offsetTop;
+        this.fnCreateDragBox(e);
+    }
+
+    Drag.prototype.fnCreateDragBox = function(e){
+        this.disX = e.clientX - this.drag.clientLeft;
+        this.disY = this.drag.offsetHeight/2;
+        var $dragBox = document.createElement('div');
+        $dragBox.setAttribute("class",'dragBox');
+        $dragBox.appendChild(this.fnCreateImg(this.drag));
+        this.drag = $dragBox;
+        document.body.appendChild($dragBox);
+    }
+
+    Drag.prototype.fnCreateImg = function($el){
+        var dataImg = $el.getAttribute('data-img');
+        var name = $el.getAttribute('data-sealName');
+        if(dataImg){
+            var $img = document.createElement('img');
+            $img.setAttribute("src",dataImg);
+            switch(name)
+            {
+                case '电子合同章':
+                    $img.setAttribute("width",'120');
+                    $img.setAttribute("height",'120');
+                    break;
+                case '法人章':
+                    $img.setAttribute("width",'76');
+                    $img.setAttribute("height",'32');
+                    break;
+                default:
+                    $img.setAttribute("maxWidth",'120');
+                    $img.setAttribute("maxHeight",'120');
+                    break;
+            }
+            return $img;
+        }else {
+            return null;
+        }
+    }
+
+    Drag.prototype.fnMove = function(e){
+        this.drag.style.left = e.clientX - this.disX + 'px';
+        this.drag.style.top = e.clientY - this.disY + 'px';
+    }
+
+    Drag.prototype.fnUp = function(e){
+        var objW = e.target.offsetWidth
+        var objH = e.target.offsetHeight
+        var X = this.pdfR - objW
+        var Y = this.pdfB - objH
+        var dL = e.clientX - this.disX
+        var dT = e.clientY - this.disY
+
+        if(dL < this.pdfL) dL = this.pdfL
+        if(dL > X) dL = X
+        if(dT < this.pdfT) dT = this.pdfT
+        if(dT > Y) dT = Y
+
+        document.onmousemove = document.onmouseup = null;
+        var st = this.$centerUId.scrollTop
+        var dY = dT + st - this.pdfT
+        var dX = dL - this.pdfL
+        dY = this.fnDragTop(dY,objH)
+
+        this.fnCreatePdfDragBox(dX,dY)
+    }
+
+    Drag.prototype.fnDragTop = function(dY,objH){
+        var st = this.$centerUId.scrollTop
+        var number = 1;
+        if(st > PDFPAGEHM) number = parseInt(st / PDFPAGEHM) + 1
+        var num = PDFPAGEHM * number
+        var h = num - PDFMARGIN - objH
+        var ofH = num - PDFMARGIN
+
+        if(dY > h && dY < ofH) dY = h
+        if(dY > ofH && dY < num) dY = num
+        if(dY < 0) dY = 0
+        if(dY > this.maxTop) dY = this.maxTop
+        return dY
+    }
+
+    Drag.prototype.fnCreatePdfDragBox = function (dX,dY) {
+        var self = this;
+        var $drag = document.createElement('div');
+        var $btnClose = document.createElement('div');//删除
+        var dom = this.obj
+
+        $drag.setAttribute("class",'dragStatus');
+        $btnClose.setAttribute("class",'close');
+        $drag.style.left = dX +'px';
+        $drag.style.top =  dY +'px';
+        self.$pdfObjId.appendChild($drag);
+        $drag.appendChild($btnClose);
+
+        self.fnSetAttr(dom, function (localName,value) {
+            (function (localName,value) {
+                $drag.setAttribute(localName,value);
+            })(localName,value)
+        })
+
+        $drag.appendChild(self.fnCreateImg($drag));
+        $btnClose.addEventListener('click', closeFn, false)
+        removeElement(this.drag)
+
+        var optionsJ = this._options
+        optionsJ.cls = '.dragStatus'
+        optionsJ.click = this._options.subFunc
+        new ChildDrag(optionsJ)
+        this.drag = $drag;
+    }
+
+    Drag.prototype.fnSetAttr = function(dom,callback){
+        var len = dom.attributes.length;
+        for(var i=0;i<len;i++){
+            var it = dom.attributes[i];
+            var localName = it.localName;
+            if(localName !== 'class'){
+                var value = it.value;
+                callback(localName,value)
+            }
+        }
+    }
+
+    Drag.prototype.fnGetResults = function(dragStatus){
+        var self = this
+        var sealArr = [];
+        for(var i = 0 ;i< dragStatus.length;i++){
+            var $el = dragStatus[i]
+            var w = dragStatus[i].offsetWidth
+            var h = dragStatus[i].offsetHeight
+            var xLeft = dragStatus[i].offsetLeft
+            var yTop = dragStatus[i].offsetTop
+            var page = getPage($el,w,h,xLeft,yTop)[0]
+            var positionX = getPage($el,w,h,xLeft,yTop)[1]
+            var positionY = getPage($el,w,h,xLeft,yTop)[2]
+
+            var dom = $el
+            var optionsJson = {}
+            self.fnSetAttr(dom, function (localName,value) {
+                if(localName !== 'style'){
+                    (function (localName,value) {
+                        var key =localName.toString().replace('data-','');
+                        optionsJson[key] =value
+                    })(localName,value)
+                }
+            });
+
+            var obj = {
+                page: page,
+                positionX: positionX,
+                positionY: positionY
+            };
+
+            var resultJson = extend(optionsJson,obj)
+            sealArr.push(resultJson)
+        }
+        self._options.subFunc(sealArr)
+    }
+
+    function ChildDrag(obj){
+        Drag.call(this,obj);
+    }
+    if(!Object.create){
+        Object.create = function(proto){
+            function F(){};
+            F.prototype = proto;
+            return new F;
+        }
+    }
+
+    ChildDrag.prototype = Object.create(Drag.prototype);
+    ChildDrag.prototype.constructor = ChildDrag;
+    ChildDrag.prototype.fnCreateDragBox = function () {};
+    ChildDrag.prototype.fnCreatePdfDragBox = function(){}
+    ChildDrag.prototype.fnShowPage = function(){}
+
+    ChildDrag.prototype.fnMove = function(e){
+        var dLeft = e.clientX - this.disX
+        var dTop = e.clientY - this.disY
+        var maxLeft = this.$pdfObjId.offsetWidth - this.drag.offsetWidth;
+        var maxTop = this.maxTop
+
+        if (dLeft <= 0) dLeft = 0
+        if (dTop <= 0) dTop = 0
+        if (dLeft >= maxLeft) dLeft = maxLeft
+        if (dTop >= maxTop) dTop = maxTop
+
+        this.drag.style.left = dLeft + 'px';
+        this.drag.style.top = dTop + 'px';
+    }
+
+    ChildDrag.prototype.fnUp = function(e){
+        var dT = e.clientY - this.disY
+        var objH = e.target.offsetHeight
+        var dY = this.fnDragTop(dT,objH)
+
+        this.drag.style.top = dY +'px';
+        document.onmousemove = document.onmouseup = null;
+    }
+
+    function extend(target, source) {
+        for (var obj in source) {
+            target[obj] = source[obj];
+        }
+        return target;
+    }
+
+    function getPage($el,w,h,xLeft,yTop){
+        var $img = $el.children[1]
+        var imgH = $img.offsetHeight
+        var imgW = $img.offsetWidth
+        var imgT = $img.offsetTop
+        // var imgH = w
+        // var imgW = w
+        // var imgT = 0
+
+        var mb = w - imgH - imgT
+        var pY = PDFPAFEH - yTop % PDFPAGEHM - w + mb
+        var valm = yTop % PDFPAGEHM
+        var pX = xLeft + (w - imgW)/2
+        var pMax = PDFPAFEH - h
+
+        if (pY < 0 && valm > pMax) {pY = 0}
+        else if (pY < 0 && valm < pMax) {pY = pMax}
+
+        var page = parseInt(yTop / PDFPAGEHM) + 1
+        return [pX,pY,page]
+    }
+
+    function removeElement(_element){
+        var _parentElement = _element.parentNode;
+        if(_parentElement){
+            _parentElement.removeChild(_element);
+        }
+    }
+
+    function throttle(method, mustRunDelay) {
+        var timer,
+            args = arguments,
+            start;
+        return function loop() {
+            var self = this;
+            var now = Date.now();
+
+            if(!start) start = now;
+            if(timer) clearTimeout(timer);
+
+            if(now - start >= mustRunDelay){
+                method.apply(self, args);
+                start = now;
+            }else {
+                timer = setTimeout(function () {
+                    loop.apply(self, args);
+                }, 50);
+            }
+        }
+    }
+
+    //删除拖拽的印章
+    function closeFn(e){
+        removeElement(e.target.parentNode)
+    }
+
+    window.Drag = Drag;
+})(window,document)

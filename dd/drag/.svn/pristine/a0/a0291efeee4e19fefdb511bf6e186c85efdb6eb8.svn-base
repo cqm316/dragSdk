@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="drag.css">
+    <script src="./page.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="btn" id="btn">
+        <span>立即签署</span>
+    </div>
+    <div class="pagebox" id="pagebox">
+        <ul id='ul'>
+        </ul>
+    </div>
+
+    <div class="contentbox">
+        <div class="wrapper" id="test">
+            <li class="box">
+                <div><img src="./images/1.png" alt=""></div>
+                <p>个人章</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/2.png" alt=""></div>
+                <p>企业章</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/3.png" alt=""></div>
+                <p>哈哈哈</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/4.png" alt=""></div>
+                <p>个人章</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/5.png" alt=""></div>
+                <p>企业章</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/3.png" alt=""></div>
+                <p>哈哈哈</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/4.png" alt=""></div>
+                <p>个人章</p>
+            </li>
+            <li class="box">
+                <div><img src="./images/5.png" alt=""></div>
+                <p>企业章</p>
+            </li>
+        </div>
+
+        <div class="centerUl" id="centerUl">
+            <ul id="pdfUl">
+                <li data-pg = '1'>1</li>
+                <li data-pg = '2'>2</li>
+                <li data-pg = '3'>3</li>
+                <li data-pg = '4'>4</li>
+                <li data-pg = '5'>5</li>
+                <li data-pg = '6'>6</li>
+                <li data-pg = '7'>7</li>
+                <li data-pg = '8'>8</li>
+                <li data-pg = '9'>9</li>
+                <li data-pg = '10'>10</li>
+                <li data-pg = '11'>11</li>
+                <li data-pg = '12'>12</li>
+            </ul>
+
+            <div class="goto">
+                <div class="goto-top"></div>
+                <div class="goto-bottom"></div>
+            </div>
+
+        </div>
+        <div class="right_con"></div>
+    </div>
+</div>
+<script>
+    var currentPage = 1;
+    var zIndex = 1;
+    var centerUl = document.getElementById('centerUl');
+    var pdfCenterX = (centerUl.offsetWidth - document.getElementById('pdfUl').offsetWidth)/2;//pdf离父元素的x距离
+    var pageHeight = document.getElementById('pagebox').offsetHeight;//上面fixed的分页高度
+    var pdfMargin = 10;//每页pdf之间的间隔
+    var pdfWdith= 592;//pdf的宽度
+    var pdfHeight = 842;//pdf的高度
+    var dragStatusPadd = 10;//包裹印章的div的x
+    var dragWidth = 130;
+    var pdfX1 = centerUl.offsetLeft   + pdfCenterX;
+    var pdfX2 = centerUl.offsetLeft +centerUl.offsetWidth - pdfCenterX;
+    window.onload = function ()
+    {
+        var oBox = document.getElementsByClassName('box');
+
+
+        for (var i = 0;i<oBox.length;i++){
+            drag(oBox[i]);
+        }
+    };
+    function drag(oDrag)
+    {
+        var disX = dixY = 0;//定位在印章的中点
+        oDrag.onmousedown = function (event)
+        {
+            var event = event || window.event;
+            var oTempNode = '';
+            if(event.target!=this){
+                oTempNode = event.target.parentNode.children[0];
+            }else {
+                oTempNode = event.target.children[0]
+            }
+            var oTemp = (oTempNode).cloneNode(true);
+            oTemp["id"] = "temp";
+            oTemp.style.zIndex = zIndex++;
+            document.getElementsByClassName('container')[0].appendChild(oTemp);
+            disX = oTemp.offsetWidth/2;//定位在印章的中点
+            disY = oTemp.offsetHeight/2;
+            var iL = event.clientX - disX;
+            var iT = event.clientY   -disY ;
+            oTemp.style.left = iL   + "px";
+            oTemp.style.top = iT + "px";
+            oTemp.style.opacity = 0;
+
+            document.onmousemove = function (event)
+            {
+                var event = event || window.event;
+                var iL = event.clientX - disX;
+                var iT = event.clientY   -disY ;
+                oTemp.style.left = iL + "px";
+                oTemp.style.top = iT + "px";
+                oTemp.style.opacity = 0.3;
+                // //确定可拖动范围
+                // //判断鼠标在pdf的当前多少页
+                var pdfNum1 = parseInt((((oTemp.offsetTop + disY  +  centerUl.scrollTop - pageHeight))) / (pdfHeight + pdfMargin)) + 1 ;
+                var pageY1 = oTemp.offsetTop + disY  +  centerUl.scrollTop - (pdfNum1*pdfMargin+pageHeight+pdfHeight*(pdfNum1-1))>=0;
+                var pageY2 = oTemp.offsetTop + disY  + centerUl.scrollTop - (pdfNum1*pdfMargin+pageHeight+pdfHeight*(pdfNum1-1))< pdfHeight;
+                if(oTemp.offsetLeft+(oTemp.offsetWidth/2)>=(pdfX1) && oTemp.offsetLeft+(oTemp.offsetWidth/2)+10<=pdfX2 && pageY1 && pageY2 && document.getElementById('pdfUl').children.length >= pdfNum1){
+                    oTemp.style.cursor ="move";
+
+                }else{
+                    oTemp.style.cursor ="not-allowed";
+                }
+
+                return false;
+            };
+            document.onmouseup = function ()
+            {
+                document.onmousemove = null;
+                document.onmouseup = null;
+                var pdfNum = parseInt((((oTemp.offsetTop + disY - pageHeight +  centerUl.scrollTop))) / (pdfHeight + pdfMargin)) + 1 ;
+                var pageY1 = oTemp.offsetTop + disY  +  centerUl.scrollTop - (pdfNum*pdfMargin+pageHeight+pdfHeight*(pdfNum-1))>=0;
+                var pageY2 = oTemp.offsetTop + disY  + centerUl.scrollTop - (pdfNum*pdfMargin+pageHeight+pdfHeight*(pdfNum-1))< pdfHeight;
+                if(oTemp.offsetLeft+(oTemp.offsetWidth/2)>=pdfX1 && oTemp.offsetLeft+(oTemp.offsetWidth/2)<=(pdfX2) && pageY1 && pageY2 && document.getElementById('pdfUl').children.length >= pdfNum){
+                    oTemp.style.opacity = 1;
+                    var upX = (oTemp.offsetLeft- pdfX1 );
+                    var upY = (oTemp.offsetTop  +  centerUl.scrollTop -  (pdfNum-1)*(pdfHeight + pdfMargin) - pageHeight - dragStatusPadd*2  );
+                    var maxL = document.getElementById('pdfUl').offsetWidth - dragWidth;
+                    var maxT = pdfHeight - dragWidth;
+                    upX<= 0 && (upX = 0);
+                    upY<= 0 && (upY = 0);
+                    upX >= maxL && (upX = maxL);
+                    upY >= maxT && (upY = maxT);
+                    var div1 = document.createElement('div');
+                    var div2 = document.createElement('div');//删除
+                    div1.setAttribute("class",'dragStatus');
+                    div2.setAttribute("class",'close');
+                    div1.style.left =  upX+'px';
+                    div1.style.top =  upY+'px';
+                    document.getElementById('pdfUl').children[pdfNum - 1].appendChild(div1);
+                    div1.appendChild(div2);
+                    div1.appendChild(oTemp);
+                    oTemp.setAttribute("class",'dragFinish');
+                    oTemp.removeAttribute('id');
+                    div2.addEventListener('click', closeFn, false)
+                    dragFn(div1);
+                }else{
+                    document.getElementsByClassName('container')[0].removeChild(oTemp);
+                    // alert('请将印章拖拽至签章处')
+                }
+            };
+            this.setCapture && this.setCapture();
+            return false
+        }
+    }
+    function dragFn(oDrag){
+        var disX = dixY = 0;
+        oDrag.onmousedown = function (event)
+        {
+            var event = event || window.event;
+            disX = event.clientX - this.offsetLeft;
+            disY = event.clientY - this.offsetTop;
+            var oTemp = oDrag;
+            oTemp.style.left = this.currentStyle ? this.currentStyle["left"] : getComputedStyle(this, null)["left"];
+            oTemp.style.top = this.currentStyle ? this.currentStyle["top"] : getComputedStyle(this, null)["top"];
+            document.onmousemove = function (event)
+            {
+                var event = event || window.event;
+                var iL = event.clientX - disX;
+                var iT = event.clientY - disY;
+                var maxL = document.getElementById('pdfUl').offsetWidth - oDrag.offsetWidth;
+                var maxT = (pdfHeight)- oDrag.offsetHeight;
+                iL <= 0 && (iL = 0);
+                iT <= 0 && (iT = 0);
+                iL >= maxL && (iL = maxL);
+                iT >= maxT && (iT = maxT);
+                oTemp.style.left = iL + "px";
+                oTemp.style.top = iT + "px";
+                return false;
+            };
+            document.onmouseup = function ()
+            {
+                document.onmousemove = null;
+                document.onmouseup = null;
+
+            };
+            this.setCapture && this.setCapture();
+            return false
+        }
+
+    }
+
+    //立即签署的坐标
+    document.getElementById('btn').onclick = function (e) {
+        var dragStatus = document.getElementsByClassName('dragStatus');
+        var sealArr = [];
+        for(var i = 0 ;i< dragStatus.length;i++){
+            var obj = {
+                page:dragStatus[i].parentNode.getAttribute('data-pg'),
+                positionX:dragStatus[i].offsetLeft + dragStatusPadd,
+                positionY:dragStatus[i].offsetTop+dragStatus[i].offsetHeight - dragStatusPadd
+            };
+            sealArr.push(obj)
+
+        }
+        console.log(sealArr)
+    };
+
+    document.getElementsByClassName('goto-top')[0].onclick = function (e) {
+        document.getElementById('centerUl').scrollTop = 0;
+
+    }
+    document.getElementsByClassName('goto-bottom')[0].onclick = function (e) {
+        document.getElementById('centerUl').scrollTop = document.getElementById('pdfUl').offsetHeight
+
+
+    }
+
+    //删除拖拽的印章
+    function closeFn(e){
+        e.target.parentNode.remove()
+    }
+
+</script>
+
+<script>
+    var conf = {
+        'total':document.getElementById('pdfUl').children.length,
+        containerId:'ul',
+        centerUId:'centerUl',
+        'click':function(e){ //e为当前页码
+            var total = document.getElementById('pdfUl').children[e-1].offsetTop;
+            var distance = document.getElementById('centerUl').scrollTop;
+            document.getElementById('centerUl').scrollTop = total;
+            /*        $.get('/php',{"page":e},function(data){
+                        console.log('ok')
+                    })*/
+        }
+    }
+    var page = new pageFunc(conf);
+</script>
+</body>
+</html>
