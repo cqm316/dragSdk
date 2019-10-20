@@ -1,0 +1,290 @@
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td, hr, button, article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+    margin: 0;
+    padding: 0
+}
+
+input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill, input:disabled, textarea:disabled, select:disabled, input, textarea, select {
+    background: none !important;
+}
+
+body, button, input, select, textarea {
+    font: 14px/1.5 sans-serif, arial, Tahoma, Verdana, STHeiTi, simsun;
+    color: #333;
+    outline: none;
+    border: none;
+}
+
+ul, li, ol {
+    list-style: none;
+}
+
+i, cite, em, var, address, dfn {
+    font-style: normal;
+}
+
+img {
+    border: 0 none;
+}
+
+input, select {
+    vertical-align: middle;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+s, em, i {
+    font-style: normal;
+    text-decoration: none;
+}
+
+a {
+    outline: none;
+    text-decoration: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    min-width: 1200px;
+    overflow-y: hidden;
+}
+
+body img {
+    max-width: 100%;
+}
+
+#drag-body {
+    display: none;
+}
+
+.drag-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    overflow-y: hidden;
+    min-width: 1200px;
+    position: relative
+}
+
+.drag-btn-sub {
+    float: right;
+    margin: 10px 20px 0 0;
+    max-width: 300px;
+    height: 40px;
+    box-sizing: border-box;
+    color: #fff;
+    background-color: #2d8cf0;
+    border-color: #2d8cf0;
+    padding: 10px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.drag-top-left {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    height: 60px;
+    width: 320px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 1001;
+}
+
+.drag-page {
+    height: 60px;
+    width: 100%;
+    min-width: 1200px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    box-sizing: border-box
+}
+
+.drag-page ul {
+    width: calc(100% - 260px - 180px);
+    margin-left: 180px;
+    text-align: center;
+    height: 100%;
+    vertical-align: middle;
+    line-height: 52px
+}
+
+.drag-page a {
+    padding: 6px;
+    margin: 5px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    color: #585858;
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 12px;
+    text-decoration: none;
+    box-sizing: border-box;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.drag-page .lmw-current {
+    background: #2d8cf0;
+    color: white;
+    border: 1px solid #2d8cf0;
+    box-sizing: border-box
+}
+
+.drag-contentbox {
+    position: absolute;
+    height: calc(100% - 60px);
+    width: 100%;
+    min-width: 1230px;
+    zoom: 1;
+    overflow: hidden;
+}
+
+.drag-contentbox:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0
+}
+
+.drag-left-side,
+.drag-right-side,
+.drag-center-box {
+    float: left;
+    width: calc(16% - 4px);
+    height: 100%;
+    padding: 25px 15px;
+    box-sizing: border-box;
+    overflow: hidden;
+    -moz-appearance: none !important;
+}
+
+.drag-contentbox .scrollbar {
+    position: relative;
+    float: left;
+    width: 4px;
+    height: 100%;
+    background: #f7f7f7;
+}
+
+.drag-contentbox .scrollthumb {
+    position: absolute;
+    width: 4px;
+    min-height: 12px;
+    background: #bbb;
+    border-radius: 4px;
+}
+
+.drag-right-side {
+    width: calc(24% - 4px);
+    border-left: 1px solid #eee;
+}
+
+.drag-center-box {
+    width: calc(60% - 4px);
+    padding: 0;
+    padding-top: 20px;
+    background: #f7f7f7;
+    text-align: center;
+}
+
+.drag-pdful > li {
+    margin: 0 auto 20px;
+    position: relative;
+    background: #fff;
+    font-size: 0;
+}
+.drag-pdful > li > img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.drag-pdful {
+    display: inline-block;
+    max-width: 795px;
+    margin: 0 auto;
+    position: relative;
+    padding-bottom: 40px;
+}
+
+.dragStatus,
+.dragBox {
+    display: block;
+    position: absolute;
+    padding: 10px;
+    border: 1px dashed #e60012;
+    cursor: move;
+    z-index: 999;
+    text-align: center;
+    font-size: 0;
+}
+
+.dragStatus img,
+.dragBox img {
+    display: inline-block;
+    max-width: 300px;
+    max-height: 300px
+}
+
+.dragStatus:hover {
+    background: rgba(230, 10, 0, 0.1)
+}
+
+.dragStatus:hover .drag-close {
+    display: block
+}
+
+.dragStatus .drag-close {
+    position: absolute;
+    top: -13px;
+    right: -12px;
+    width: 26px;
+    height: 26px;
+    background: url("../images/ico-drag-close.png") no-repeat center;
+    cursor: pointer
+}
+
+.drag-goto {
+    position: absolute;
+    z-index: 300;
+    right: 27%;
+    bottom: 30px;
+    height: 120px;
+    width: 50px
+}
+
+.drag-goto .goto-bottom,
+.drag-goto .goto-top {
+    background-position: 50%;
+    background-size: contain;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    cursor: pointer
+}
+
+.drag-goto .goto-top {
+    top: 0;
+    background: url("../images/ico-drag-top.png") no-repeat center
+}
+
+.drag-goto .goto-bottom {
+    bottom: 0;
+    background: url("../images/ico-drag-btm.png") no-repeat center
+}
+
+.drag-contentbox img {
+    /*max-width: 100%;*/
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
